@@ -7,23 +7,29 @@ const {
   usuariosPost,
   usuarioDelete,
 } = require("../controllers/usuario");
-const { esRolValido, emailExiste } = require("../helpers/db-validators");
+const { esRolValido, emailExiste, existeUsuaroPorId } = require("../helpers/db-validators");
 const router = Router();
 
 router.get("/", usuariosGet);
 
-router.put("/:id", usuariosPut);
+router.put("/:id",[
+  check('id', 'No es un ID valido').isMongoId(),
+  check('id').custom(existeUsuaroPorId),
+  check('rol').custom(esRolValido),
+
+  validarCampos 
+], usuariosPut);
 router.post('/',[
   check('nombre', 'El nombre es obligatorio').not().isEmpty(),
   check('correo', 'El correo no es valido').isEmail(),
   check('correo').custom( emailExiste) ,
   check('password', 'El password debe tener mas de 6 letras').isLength({min: 6}),
-  check('rol', 'No es un rol permitido').isIn(['ADMIN_ROLE', 'USER_ROLE']),
-
+  check('rol', 'No es un rol permitido').isIn(['ADMIN_ROLE', 'USER_ROLE', 'VENTAS_ROLE']),
   check('rol').custom(esRolValido),
+
   validarCampos,
 
 ], usuariosPost)
-router.delete("/", usuarioDelete);
+router.delete("/:id", usuarioDelete);
 
 module.exports = router;

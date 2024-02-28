@@ -1,12 +1,12 @@
 
-const {Schema, model} = require('mongoose');
-const { route } = require('../routes/usuario');
+const { Schema, model } = require('mongoose');
 
 const RoleSchema = Schema({
-    rol:{
+    rol: {
         type: String,
-        require: [ true, 'El rol es obligatorio']
+        required: [true, 'El rol es obligatorio']
     }
 });
 
-module.exports = model('Role', RoleSchema); 
+
+module.exports = model( 'Role', RoleSchema );
