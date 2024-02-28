@@ -1,19 +1,19 @@
 const mongoose = require('mongoose');
+
 const dbConexion = async () => {
   try {
     await mongoose.connect(
-        process.env.MONGODB_CNN,
+      process.env.MONGODB_CNN,
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       }
     );
 
-    console.log("Base de datos");
+    console.log("Conexión a la base de datos establecida correctamente");
   } catch (error) {
-    console.log(error);
-
-    throw new Error("Error  a la hora de iniciar la base de datos");
+    console.error("Error al conectar a la base de datos:", error);
+    throw new Error("Error al conectar a la base de datos");
   }
 };
 
