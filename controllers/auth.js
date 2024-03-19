@@ -46,40 +46,46 @@ const login = async (req, res = response) => {
   }
 };
 
-const  googleSignIn = async (req = request, res = response) => {
+const googleSignIn = async (req, res) => {
   const { id_token } = req.body;
   try {
     const { nombre, img, correo } = await googleVerify(id_token);
     let usuario = await Usuario.findOne({ correo });
-    if (!usuario) {
-      //teno que crearlo
+    if (usuario === null) {
+     
+      // Si el usuario no existe en la base de datos, se crea
       const data = {
         nombre,
         correo,
-        password: "",
+        password: "2222222",
+        rol: 'USER_ROLE',
         img,
         google: true,
-      };  
+      };
       usuario = new Usuario(data);
       await usuario.save();
     }
-    //  si usuario en DB
+
+    // Si el usuario está marcado como inactivo en la base de datos
     if (!usuario.estado) {
       return res.status(401).json({
-        msg: "Hable con el administrador usuario borrado",
+        msg: "Hable con el administrador, usuario borrado",
       });
     }
-    // generar el JWT
-    // generar jwt
+
+    // Generar el JWT
     const token = await generarJWT(usuario.id);
-     res.json({
-      usuario,
+
+    // Enviar la respuesta con el usuario y el token
+    res.json({
       token,
+      usuario,
     });
   } catch (error) {
+    // Si ocurre un error al verificar el token
     res.status(400).json({
+      msg: "El token no pudo ser verificado",
       ok: false,
-      msg: "el token no se pudo verificar",
     });
   }
 };
