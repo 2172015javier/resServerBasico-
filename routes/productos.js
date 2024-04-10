@@ -1,0 +1,43 @@
+const { Router } = require("express");
+const { validarCampos } = require("../middlewares/validar-campos");
+const { check } = require("express-validator");
+const { login, googleSignIn } = require("../controllers/auth");
+const validarJWT = require("../middlewares/validar-jwt");
+const {  crearProducto, obtenerProductos, obtenerProducto, borrarProducto, actualizarProducto } = require("../controllers/producto");
+const { existeCategoriaId, existeUsuaroPorId, existeProductoId } = require("../helpers/db-validators");
+const { esAdminRole } = require("../middlewares/validar-roles");
+
+const router = Router();
+// Obtener todas los Productos
+router.get("/", obtenerProductos);
+//Obtener una categoria por ID
+router.get("/:id", [
+  check('id', 'no es un id de mongo').isMongoId(),
+  check('id').custom(existeProductoId),
+  validarCampos
+] ,obtenerProducto );
+// crear un nuevo Producto
+router.post("/",[
+  validarJWT,   
+  check('nombre','El nombre es obligatorio').not().isEmpty(),
+  check('categoria','No es un id de Mongo').isMongoId(),
+  check('categoria').custom(existeCategoriaId),
+  validarCampos
+], crearProducto);
+// Actualizar un registro por id
+router.put("/:id",[
+  validarJWT,
+  check('categoria', 'No es un id de Mongo').isMongoId(),
+  check('id').custom(existeProductoId),
+  validarCampos
+] ,actualizarProducto);
+// Borrar una categoria solo si es un - Admin
+router.delete("/:id",[
+  validarJWT,
+  esAdminRole,
+  check('id', 'No es un id: de mongo').isMongoId(),
+  check('id').custom(existeProductoId),
+  validarCampos
+],borrarProducto);
+
+module.exports = router;
